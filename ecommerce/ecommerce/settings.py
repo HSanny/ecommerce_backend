@@ -168,7 +168,7 @@ REST_FRAMEWORK = {
 
 # Ensure CSRF_COOKIE_NAME is set to the default or matches your frontend configuration
 CSRF_COOKIE_NAME = 'csrftoken'  
-CSRF_COOKIE_DOMAIN = 
+CSRF_COOKIE_DOMAIN = None
 # Ensure CSRF_COOKIE_HTTPONLY is False if you need to read the CSRF token with JavaScript
 CSRF_COOKIE_HTTPONLY = False  
 
