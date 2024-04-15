@@ -1,0 +1,11 @@
+apiVersion: v1           # API version for the service.
+kind: Service            # Defines the resource as a Service.
+metadata:
+  name: ecommerce-service # Name of the service.
+spec:                     # Specification of the service.
+  type: LoadBalancer      # The type of service. LoadBalancer exposes the Service externally using a cloud provider’s load balancer.
+  ports:
+  - port: 8000            # The port that the service exposes.
+    targetPort: 8000      # The port on the containers targeted by this service.
+  selector:
+    app: ecommerce        # Selector that determines which pods will be part of this service.

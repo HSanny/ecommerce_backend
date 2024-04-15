@@ -1,0 +1,26 @@
+apiVersion: apps/v1       # Specifies the API version for the deployment.
+kind: Deployment          # Defines the kind of Kubernetes resource, in this case, a Deployment.
+metadata:
+  name: ecommerce-deployment # The name of the deployment; you can use this name to refer to the deployment.
+spec:                     # Specifies the desired state of the deployment.
+  replicas: 2             # The number of pods to run.
+  selector:
+    matchLabels:
+      app: ecommerce      # Selector that specifies how to identify pods that belong to this deployment.
+  template:               # Template for the pods the deployment manages.
+    metadata:
+      labels:
+        app: ecommerce    # Labels applied to all pods started by this deployment.
+    spec:                 # Specification of the pods.
+      containers:
+      - name: ecommerce   # Name of the container within the pod.
+        image: gcr.io/ecommerce-web-418516/ecommerce:v1 # The Docker image to use for the pod.
+        ports:
+        - containerPort: 8000 # The port the container exposes.
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

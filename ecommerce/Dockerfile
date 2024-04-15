@@ -24,7 +24,8 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 FROM python:3.12-slim
 
 # Copy Python packages from builder to the runtime container
-COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+# Update Dockerfile to copy the entire /usr/local directory from the builder stage to the final
+COPY --from=builder /usr/local /usr/local
 
 # Set the working directory
 WORKDIR /app
@@ -32,8 +33,8 @@ WORKDIR /app
 # Ensure that the application code is copied only once in the runtime stage to avoid redundancy and potential permission issues.
 COPY . /app
 
-# Set the PYTHONPATH so that Python knows where to find the Django project
-ENV PYTHONPATH /app
+# # Set the PYTHONPATH so that Python knows where to find the Django project
+# ENV PYTHONPATH /app
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 RUN adduser --uid 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
@@ -43,4 +44,4 @@ USER appuser
 EXPOSE 8000
 
 # Command to run when starting the container
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ecommerce.ecommerce.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "ecommerce.wsgi:application"]
