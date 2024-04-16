@@ -15,6 +15,7 @@ spec:                     # Specifies the desired state of the deployment.
       containers:
       - name: ecommerce   # Name of the container within the pod.
         image: gcr.io/ecommerce-web-418516/ecommerce:v1 # The Docker image to use for the pod.
+        imagePullPolicy: Always # force Kubernetes to pull the updated image
         ports:
         - containerPort: 8000 # The port the container exposes.
         resources:
