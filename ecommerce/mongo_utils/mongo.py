@@ -7,15 +7,19 @@ from pymongo import MongoClient
 
 def get_db_handle():
     db_name = "ecommerce"
-    host = "localhost"
-    port = 27017
-    username = None
-    password = None
-    client = MongoClient(
-        host=host,
-        port=port,
-        username=username,
-        password=password,
-    )
+    # host = "localhost"
+    # port = 27017
+    # username = None
+    # password = None
+    # Replace the URI below with MongoDB Atlas connection string
+    uri = "mongodb+srv://synhong43:sanny37567269@cluster0.suhnds0.mongodb.net/?retryWrites=true&w=majority&appName=cluster0"
+    
+    # client = MongoClient(
+    #     host=host,
+    #     port=port,
+    #     username=username,
+    #     password=password,
+    # )
+    client = MongoClient(uri)
     db_handle = client[db_name]
     return db_handle, client
