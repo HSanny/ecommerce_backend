@@ -20,7 +20,7 @@ from mongo_utils.util import clean_product_name
 def amazon_products_list(request):
     db_handle, _ = get_db_handle()
     # use the collection name as per your MongoDB setup
-    collection = db_handle.products
+    collection = db_handle.amazon_products
     # documents = collection.find({})
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -107,7 +107,7 @@ def csrf_token(request):
 def get_data_summary(request):
     db_handle, _ = get_db_handle()
     # use the collection name as per your MongoDB setup
-    collection = db_handle.products
+    collection = db_handle.amazon_products
 
     # aggregate data using MongoDB's aggregation framework
     pipeline = [

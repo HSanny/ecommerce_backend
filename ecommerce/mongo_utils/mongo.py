@@ -12,7 +12,7 @@ def get_db_handle():
     # username = None
     # password = None
     # Replace the URI below with MongoDB Atlas connection string
-    uri = "mongodb+srv://synhong43:sanny37567269@cluster0.suhnds0.mongodb.net/?retryWrites=true&w=majority&appName=cluster0"
+    uri = "mongodb+srv://synhong43:admin@cluster0.suhnds0.mongodb.net/?retryWrites=true&w=majority&appName=cluster0"
     
     # client = MongoClient(
     #     host=host,
