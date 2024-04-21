@@ -33,5 +33,10 @@ urlpatterns = [
     path(
         "auth/",
         include("users.urls")
+    ),
+
+    path(
+        "orders/",
+        include("orders.urls")
     )
 ]

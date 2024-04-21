@@ -14,6 +14,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'shipping_address',
             'billing_address',
             'default_shipping_method',
+            'cart_items',
+            'payment_method'
         )
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -35,3 +37,13 @@ rather than processing JSON data as you would in a REST API.
 # class LoginSerializer(serializers.Serializer):
 #     email = serializers.EmailField()
 #     password = serializers.CharField()
+
+## Cart Item
+
+from rest_framework import serializers
+from .models import CartItem
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['product_id', 'name', 'image', 'amount', 'price']

@@ -11,7 +11,7 @@ Each class in models.py represents a database table, and the attributes represen
 
 from django.contrib.auth.models import BaseUserManager
 from django.utils.translation import gettext_lazy as _
-
+from django.db.models  import JSONField
 class CustomUserManager(BaseUserManager):
     """
     Custom user model manager where email is the unique identifier
@@ -47,7 +47,7 @@ class CustomUser(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username'] # email is not needed here as it's already username field
-
+    payment_method = JSONField(blank=True, null=True)
     objects = CustomUserManager() # use this custom manager as the manager for this model(users), such that you will be able to call CustomUser.objects.create_user()...
     phone_number = models.CharField(max_length=15, blank=True)
     shipping_address = models.TextField(blank=True)
@@ -70,3 +70,19 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.email # return primary identifier
+    
+
+# Cart Item
+from django.db import models
+from django.conf import settings
+
+class CartItem(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='cart_items', on_delete=models.CASCADE)
+    product_id = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    image = models.URLField()
+    amount = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.amount} x {self.name}"

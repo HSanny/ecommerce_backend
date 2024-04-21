@@ -92,9 +92,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER':'postgres',
-        'PASSWORD':'postgres',
-        'HOST':'104.198.198.1',
+        'USER':'admin',
+        'PASSWORD':'admin',
+        'HOST':'34.146.193.123',
         'PORT':'5432'
     },
     'auth_db': {
@@ -102,7 +102,7 @@ DATABASES = {
         'NAME': 'auth_db',
         'USER':'admin',
         'PASSWORD':'admin',
-        'HOST':'104.198.198.1',
+        'HOST':'34.146.193.123',
         'PORT':'5432'
     },
     'transaction_db': {
@@ -110,7 +110,7 @@ DATABASES = {
         'NAME': 'transaction_db',
         'USER':'admin',
         'PASSWORD':'admin',
-        'HOST':'104.198.198.1',
+        'HOST':'34.146.193.123',
         'PORT':'5432'
     }
 }

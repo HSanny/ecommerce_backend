@@ -3,7 +3,7 @@ kind: Deployment          # Defines the kind of Kubernetes resource, in this cas
 metadata:
   name: ecommerce-deployment # The name of the deployment; you can use this name to refer to the deployment.
 spec:                     # Specifies the desired state of the deployment.
-  replicas: 2             # The number of pods to run.
+  replicas: 1             # The number of pods to run.
   selector:
     matchLabels:
       app: ecommerce      # Selector that specifies how to identify pods that belong to this deployment.
@@ -14,7 +14,7 @@ spec:                     # Specifies the desired state of the deployment.
     spec:                 # Specification of the pods.
       containers:
       - name: ecommerce   # Name of the container within the pod.
-        image: gcr.io/ecommerce-web-418516/ecommerce:v1 # The Docker image to use for the pod.
+        image: gcr.io/ecommerce-web-420908/ecommerce:v1 # The Docker image to use for the pod.
         imagePullPolicy: Always # force Kubernetes to pull the updated image
         ports:
         - containerPort: 8000 # The port the container exposes.

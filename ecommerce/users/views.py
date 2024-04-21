@@ -45,10 +45,14 @@ def login_view(request):
             # token-based or session-based
             # session-based authentication for security reason
             login(request, user)
-            return JsonResponse(
-                {"message": "Login successfully"},
-                status = 200
-            )
+            user_data = CustomUserSerializer(user).data
+            orders = Order.objects.using('transaction_db').filter(user=user)
+            orders_data = OrderSerializer(orders, many=True).data
+            return JsonResponse({
+                "message": "Login Successfully",
+                "userData": user_data,
+                "transactionData": orders_data
+            }, status=200)
 
         else:
             return JsonResponse(
@@ -62,3 +66,47 @@ from django.contrib.auth import logout
 def logout_view(request):
     logout(request)
     return JsonResponse({"message": "Logged out successfully"})
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import CartItem
+from .serializers import CartItemSerializer
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_to_cart(request):
+    serializer = CartItemSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(user=request.user)
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def update_cart_item(request, item_id):
+    try:
+        cart_item = CartItem.objects.get(id=item_id, user=request.user)
+        serializer = CartItemSerializer(cart_item, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+    except CartItem.DoesNotExist:
+        return Response({'message': 'Item not found'}, status=404)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def remove_item(request, item_id):
+    try:
+        cart_item = CartItem.objects.get(id=item_id, user=request.user)
+        cart_item.delete()
+        return Response({'message': 'Item removed successfully'}, status=204)
+    except CartItem.DoesNotExist:
+        return Response({'error': 'Item not found'}, status=404)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def clear_cart(request):
+    CartItem.objects.filter(user=request.user).delete()
+    return Response({'message': 'Cart cleared successfully'}, status=204)
