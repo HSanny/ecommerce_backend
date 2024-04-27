@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
+from users.views import set_csrf_token
 urlpatterns = [
     path('admin/', admin.site.urls),
     
@@ -38,5 +39,8 @@ urlpatterns = [
     path(
         "orders/",
         include("orders.urls")
-    )
+    ),
+
+    path('test-cookie/', set_csrf_token, name='test-cookie'),  # Make sure this line is correct
+
 ]

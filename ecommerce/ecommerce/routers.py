@@ -8,7 +8,7 @@ class PostgresRouter:
             return 'auth_db'
         
         elif model._meta.app_label == 'orders':
-            return 'transaction_db'
+            return 'transactions_db'
     
         return 'default'
     
@@ -16,12 +16,12 @@ class PostgresRouter:
         if model._meta.app_label == 'users':
             return 'auth_db'
         elif model._meta.app_label == 'orders':
-            return 'transaction_db'
+            return 'transactions_db'
         return 'default'  # MongoDB or other
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         if app_label == 'users':
             return db == 'auth_db'
         elif app_label == 'orders':
-            return db == 'transaction_db'
+            return db == 'transactions_db'
         return None

@@ -56,10 +56,10 @@ MIDDLEWARE = [
     
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -92,26 +92,26 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
-        'USER':'admin',
-        'PASSWORD':'admin',
-        'HOST':'34.146.193.123',
-        'PORT':'5432'
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
+        'HOST': 'localhost',  # Changed to localhost
+        'PORT': '5432',
     },
     'auth_db': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'auth_db',
-        'USER':'admin',
-        'PASSWORD':'admin',
-        'HOST':'34.146.193.123',
-        'PORT':'5432'
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',  # Changed to localhost
+        'PORT': '5432',
     },
-    'transaction_db': {
+    'transactions_db': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'transaction_db',
-        'USER':'admin',
-        'PASSWORD':'admin',
-        'HOST':'34.146.193.123',
-        'PORT':'5432'
+        'NAME': 'transactions_db',
+        'USER': 'admin',
+        'PASSWORD': 'admin',
+        'HOST': 'localhost',  # Changed to localhost
+        'PORT': '5432',
     }
 }
 
@@ -180,10 +180,13 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
 ]
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_COOKIE_DOMAIN = 'localhost'
+CSRF_COOKIE_SAMESITE = 'None'  # Essential when CORS is involved
+CSRF_COOKIE_SECURE = True  # Must be True if SAMESITE is None; ensure you are using HTTPS
 # logging setting 
 LOGGING = {
     'version': 1,

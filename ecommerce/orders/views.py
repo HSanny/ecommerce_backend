@@ -23,10 +23,10 @@ def create_order(request):
     }
     serializer = OrderSerializer(data=order_data)
     if serializer.is_valid():
-        # Save the order to transaction_db
-        with transaction.atomic(using='transaction_db'):
+        # Save the order to transactions_db
+        with transaction.atomic(using='transactions_db'):
             order = Order(**serializer.validated_data)
-            order.save(using='transaction_db')
+            order.save(using='transactions_db')
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
 
