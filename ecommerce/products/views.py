@@ -81,8 +81,13 @@ def amazon_products_list(request):
 
         
         product_list = [
-            {key: clean_product_name(value) if key == "name" else value for key, value in doc.items() if key != "_id"} for doc in documents
+            {
+                'id': str(doc['_id']),
+                **{key: clean_product_name(value) if key == 'name' else value for key, value in doc.items() if key != '_id'}
+            } for doc in documents
         ]
+
+        # {'id': str(doc['_id']), **{key: clean_product_name(value) if key == "name" else value for key, value in doc.items() if key != "_id"}} for doc in documents
 
         response_data = {
             'products': product_list,
