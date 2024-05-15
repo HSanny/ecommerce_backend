@@ -35,8 +35,7 @@ from django.middleware.csrf import get_token
 
 def login_view(request):
     # Django's built-in authentication system
-    csrf_token = get_token(request)
-    print("CSRF Token:", csrf_token)
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -115,12 +114,10 @@ def clear_cart(request):
     return Response({'message': 'Cart cleared successfully'}, status=204)
 
 
-# users/views.py
-
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import JsonResponse
 
 @ensure_csrf_cookie
-def set_csrf_token(request):
-    return JsonResponse({'message': 'CSRF token has been set!'})
+def csrf_token(request):
+    return JsonResponse({'detail': 'CSRF cookie set !'})
 

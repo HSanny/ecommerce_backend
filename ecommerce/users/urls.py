@@ -1,7 +1,10 @@
 from django.urls import path
-from .views import login_view, register, logout_view, add_to_cart, update_cart_item, remove_item, clear_cart
+from .views import csrf_token, login_view, register, logout_view, add_to_cart, update_cart_item, remove_item, clear_cart
 
 urlpatterns = [
+    # csrf token url
+    path('csrf-token/', csrf_token),
+    
     path('register/', register, name='register'),
     path('login/', login_view, name='login'),
     path('logout/', logout_view, name='logout'),

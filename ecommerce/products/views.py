@@ -101,14 +101,6 @@ def amazon_products_list(request):
         # handle non-POST request here
         return JsonResponse({'error': 'This endpoint only supports POST request'})
     
-
-from django.middleware.csrf import get_token
-from django.http import JsonResponse
-
-def csrf_token(request):
-    return JsonResponse({'csrfToken': get_token(request)})
-
-
 def get_data_summary(request):
     db_handle, _ = get_db_handle()
     # use the collection name as per your MongoDB setup

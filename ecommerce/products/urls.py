@@ -14,11 +14,6 @@ urlpatterns = [
         name="amazon_products_list"
     ),
     path(
-        'csrfToken/',
-        views.csrf_token,
-        name="csrf_token"
-    ),
-    path(
         'data_summary/',
         views.get_data_summary,
         name="data_summary"

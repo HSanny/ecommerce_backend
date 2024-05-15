@@ -44,6 +44,36 @@ INSTALLED_APPS = [
     'users',
 ]
 
+# CORS and CSRF settings
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+# Additional settings to allow request with credentials like cookie (CORS policy)
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'x-csrftoken',
+]
+
+CORS_EXPOSE_HEADERS = [
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Credentials',
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CSRF_COOKIE_DOMAIN = 'localhost'
+CSRF_COOKIE_SAMESITE = 'Lax'  # 'None' might cause issues; 'Lax' is a safer choice.
+CSRF_COOKIE_SECURE = False  # Should be True if you're using HTTPS
+
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -166,41 +196,3 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Ensure CSRF_COOKIE_NAME is set to the default or matches your frontend configuration
-CSRF_COOKIE_NAME = 'csrftoken'  
-CSRF_COOKIE_DOMAIN = None
-# Ensure CSRF_COOKIE_HTTPONLY is False if you need to read the CSRF token with JavaScript
-CSRF_COOKIE_HTTPONLY = False  
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://192.168.0.106:3000",
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:3000",
-]
-# CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOW_CREDENTIALS = True
-
-CSRF_COOKIE_DOMAIN = 'localhost'
-CSRF_COOKIE_SAMESITE = 'None'  # Essential when CORS is involved
-CSRF_COOKIE_SECURE = True  # Must be True if SAMESITE is None; ensure you are using HTTPS
-# logging setting 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
