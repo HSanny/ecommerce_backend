@@ -1,9 +1,19 @@
+# users/serializers.py
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from .models import CustomUser
+from .models import CustomUser, CartItem
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-# registration
-class CustomUserSerializer(serializers.ModelSerializer):
+
+## Cart Item
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['id', 'product_id', 'name', 'image', 'amount', 'price']
+
+class UserSerializer(serializers.ModelSerializer):
+    cart_items = CartItemSerializer(many=True, read_only=True, default=[])
     class Meta:
         model = CustomUser
         fields = (
@@ -21,29 +31,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data['password'] = make_password(validated_data.get('password'))
-        return super(CustomUserSerializer, self).create(validated_data)
-    
-# # login
-    
-"""
-In the context of session-based authentication 
-using Django's traditional server-rendered views, 
-a LoginSerializer is not typically necessary. 
-This is because in such a setup, 
-the authentication process generally involves 
-standard Django forms or handling request data directly, 
-rather than processing JSON data as you would in a REST API.
-"""
-# class LoginSerializer(serializers.Serializer):
-#     email = serializers.EmailField()
-#     password = serializers.CharField()
+        return super(UserSerializer, self).create(validated_data)
 
-## Cart Item
-
-from rest_framework import serializers
-from .models import CartItem
-
-class CartItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CartItem
-        fields = ['product_id', 'name', 'image', 'amount', 'price']
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims
+        token['username'] = user.username
+        return token
