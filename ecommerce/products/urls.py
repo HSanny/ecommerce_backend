@@ -1,21 +1,8 @@
-from django.urls import include, path
-from . import views
-
-# In this file, 
-# you define the URL patterns for your app. 
-# The path() function is used to associate a URL pattern (in this case amazon_products/) with a view function (views.amazon_products_list). 
-# When a user navigates to /amazon_products/ on your website, 
-# Django will execute the amazon_products_list function.
+from django.urls import path
+from .views import ProductListView, SingleProductView, DataSummaryView
 
 urlpatterns = [
-    path(
-        'amazon_products/',
-        views.amazon_products_list,
-        name="amazon_products_list"
-    ),
-    path(
-        'data_summary/',
-        views.get_data_summary,
-        name="data_summary"
-    )
+    path('amazon_products/', ProductListView.as_view(), name='amazon_products_list'),
+    path('single_product/<str:product_id>/', SingleProductView.as_view(), name='single_product'),
+    path('data_summary/', DataSummaryView.as_view(), name='data_summary')
 ]
