@@ -5,19 +5,67 @@ from collections import defaultdict
 from mongo_utils.mongo import get_db_handle
 import json
 
+class PromotedProductView(APIView):
+    def post(self, request):
+        db_handle, _ = get_db_handle()
+        collection = db_handle.amazon_product
+
+        # retrieve user input (search and browse history)
+
+        user_data = json.loads(request.body).get('user_data', {})
+        user_id = user_data('user_id')
+        search_history = user_data.get('search_history', [])
+        browse_history = user_data.get('browse_history', [])
+
+        # check if user has any search/browse history
+        if search_history or browse_history:
+            # generate recommendations based on the model
+            # //TODO
+            recommended_products = self.get_recommendations(user_id, search_history, browse_history)
+
+            if len(recommended_products) < 5:
+                highest_rated_products = self.get_highest_rated_products(collection, 5 - len(recommended_products))
+                promoted_products = recommended_products + highest_rated_products
+            else:
+                promoted_products = recommended_products[:5]
+        else:
+            promoted_products = self.get_highest_rated_products(collection, 5)
+
+        return JsonResponse({'promoted_products': promoted_products}, status=200)
+    
+    def get_recommendations(self, user_id, search_history, browse_history):
+        # Use your recommender model to generate product recommendations
+        # For now, just a placeholder
+        recommendations = recommender_model.predict(user_id, search_history, browse_history)
+        return recommendations
+
+    def get_highest_rated_products(self, collection, limit):
+        # Query MongoDB to find the top N highest-rated products
+        products = collection.find().sort('rating', -1).limit(limit)
+        product_list = [
+            {
+                'id': str(product['_id']),
+                'product_name': product['product_name'][:50] + '...' if len(product['product_name']) > 50 else product['product_name'],
+                'rating': product['rating'],
+                'discounted_price': product['discounted_price'],
+                'actual_price': product['actual_price'],
+                'image': product['img_link']
+            } for product in products
+        ]
+        return product_list
 class ProductListView(APIView):
     @csrf_exempt
     def post(self, request):
         db_handle, _ = get_db_handle()
-        collection = db_handle.amazon_products
+        collection = db_handle.amazon_product
 
         data = json.loads(request.body)
         filters = data.get('filters', {})
         query = {}
 
         filter_params = [
-            'main_category', 'sub_category',
-            'ratings_gte', 'ratings_lte'
+            'category',
+            'rating_gte', 'rating_lte'
         ]
 
         for param in filter_params:
@@ -31,12 +79,12 @@ class ProductListView(APIView):
                 else:
                     query[param] = value
 
-        # Handle the search parameter
+        # handle the search parameter
         search = filters.get('search', '')
         if search:
-            query['name'] = {'$regex': search, '$options': 'i'}
+            query['product_name'] = {'$regex': search, '$options': 'i'}
 
-        print("Constructed MongoDB query:", query)  # Debugging statement
+        print("Constructed MongoDB query: ", query)
 
         page_number = int(data.get('page', 1))
         items_per_page = 10
@@ -49,11 +97,12 @@ class ProductListView(APIView):
         product_list = [
             {
                 'id': str(doc['_id']),
-                **{key: value for key, value in doc.items() if key != '_id'}
+                'product_name': doc['product_name'][:50] + '...' if len(doc['product_name']) > 50 else doc['product_name']
+                **{key: value for key,value in doc.items() if key != '_id'}
             } for doc in documents
         ]
 
-        print("Returned products:", product_list)  # Debugging statement
+        print("Returned products: ", product_list) 
 
         response_data = {
             'products': product_list,
@@ -61,9 +110,6 @@ class ProductListView(APIView):
         }
 
         return JsonResponse(response_data, status=200)
-
-    def get(self, request):
-        return JsonResponse({'error': 'This endpoint only supports POST requests'}, status=405)
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -81,26 +127,30 @@ def clean_price(price_str):
 class SingleProductView(APIView):
     def get(self, request, product_id):
         db_handle, _ = get_db_handle()
-        collection = db_handle.amazon_products
+        collection = db_handle.amazon_product
 
         try:
             product = collection.find_one({'_id': ObjectId(product_id)})
             if product:
                 product['id'] = str(product['_id'])
                 del product['_id']
-                
-                # Clean price fields
+
+                # clean price field
                 if 'actual_price' in product:
                     product['actual_price'] = clean_price(product['actual_price'])
-                if 'discount_price' in product:
-                    product['discount_price'] = clean_price(product['discount_price'])
+                if 'discounted_price' in product:
+                    product['discounted_price'] = clean_price(product['discounted_price'])
                 
-                # Clean product name if needed
-                if 'name' in product:
-                    product['name'] = clean_product_name(product['name'])
+                # handle complex fields (lists)
+                product['user_id'] = product.get('user_id', '').split(',') if 'user_id' in product else []
+                product['user_name'] = product.get('user_name', '').split(',') if 'user_name' in product else []
+                product['review_id'] = product.get('review_id', '').split(',') if 'review_id' in product else []
+                product['review_title'] = product.get('review_title', '').split(',') if 'review_title' in product else []
+                product['review_content'] = product.get('review_content', '').split(',') if 'review_content' in product else []
 
-                serializer = ProductSerializer(product)
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                # serialise the product data
+                serialiser = ProductSerializer(product)
+                return Response(serialiser.data, status=status.HTTP_200_OK)
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -108,19 +158,23 @@ class SingleProductView(APIView):
 class DataSummaryView(APIView):
     def get(self, request):
         db_handle, _ = get_db_handle()
-        collection = db_handle.amazon_products
+        collection = db_handle.amazon_product
 
         pipeline = [
             {
                 '$addFields': {
+                    'split_categories': {
+                        '$split': ['$category', '|']
+                    },
+
                     'discount_price_clean': {
                         '$cond': {
-                            'if': {'$eq': ['$discount_price', '']},
+                            'if': {'$eq': ['$discounted_price', '']},
                             'then': None,
                             'else': {
                                 '$toDouble': {
                                     '$replaceAll': {
-                                        'input': {'$replaceAll': {'input': '$discount_price', 'find': '₹', 'replacement': ''}},
+                                        'input': {'$replaceAll': {'input': '$discounted_price', 'find': '₹', 'replacement': ''}},
                                         'find': ',',
                                         'replacement': ''
                                     }
@@ -130,7 +184,7 @@ class DataSummaryView(APIView):
                     },
                     'actual_price_clean': {
                         '$cond': {
-                            'if': {'$eq': ['$discount_price', '']},
+                            'if': {'$eq': ['$discounted_price', '']},
                             'then': None,
                             'else': {
                                 '$toDouble': {
@@ -146,11 +200,13 @@ class DataSummaryView(APIView):
                 }
             },
             {
+                '$unwind': '$split_categories'
+            },
+            {
                 '$group': {
                     '_id': None,
-                    'main_categories': {'$addToSet': '$main_category'},
-                    'sub_categories': {'$addToSet': '$sub_category'},
-                    'all_ratings': {'$addToSet': '$ratings'},
+                    'categories': {'$addToSet': '$split_categories'},
+                    'all_ratings': {'$addToSet': '$rating'},
                     'max_discount_price': {'$max': '$discount_price_clean'},
                     'min_discount_price': {'$min': '$discount_price_clean'},
                     'max_actual_price': {'$max': '$actual_price_clean'},
